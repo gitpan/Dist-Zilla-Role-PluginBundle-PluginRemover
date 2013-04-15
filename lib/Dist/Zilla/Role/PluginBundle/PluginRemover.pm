@@ -12,8 +12,10 @@ use warnings;
 
 package Dist::Zilla::Role::PluginBundle::PluginRemover;
 {
-  $Dist::Zilla::Role::PluginBundle::PluginRemover::VERSION = '0.101';
+  $Dist::Zilla::Role::PluginBundle::PluginRemover::VERSION = '0.102';
 }
+# git description: v0.101-7-g1c447fc
+
 BEGIN {
   $Dist::Zilla::Role::PluginBundle::PluginRemover::AUTHORITY = 'cpan:RWSTAUNER';
 }
@@ -27,7 +29,16 @@ requires 'bundle_config';
 
 sub plugin_remover_attribute { '-remove' };
 
-sub mvp_multivalue_args { $_[0]->plugin_remover_attribute };
+# Stub an empty sub so we can use 'around'.
+# A consuming class can overwrite the empty sub
+# and the 'around' will modify that sub at composition time.
+sub mvp_multivalue_args { }
+
+around mvp_multivalue_args => sub {
+  my $orig = shift;
+  my $self = shift;
+  $self->plugin_remover_attribute, $self->$orig(@_)
+};
 
 
 sub remove_plugins {
@@ -59,14 +70,15 @@ around bundle_config => sub {
 
 1;
 
-
 __END__
+
 =pod
 
-=for :stopwords Randy Stauner ACKNOWLEDGEMENTS cpan testmatrix url annocpan anno bugtracker
-rt cpants kwalitee diff irc mailto metadata placeholders
-
 =encoding utf-8
+
+=for :stopwords Randy Stauner ACKNOWLEDGEMENTS Karen Etheridge <ether@cpan.org> cpan
+testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto
+metadata placeholders metacpan
 
 =head1 NAME
 
@@ -74,7 +86,7 @@ Dist::Zilla::Role::PluginBundle::PluginRemover - Add '-remove' functionality to 
 
 =head1 VERSION
 
-version 0.101
+version 0.102
 
 =head1 SYNOPSIS
 
@@ -105,11 +117,6 @@ to define a different attribute name:
 
   # in your bundle package
   sub plugin_remover_attribute { 'scurvy_cur' }
-
-B<NOTE>: If you overwrite C<mvp_multivalue_args>
-you'll need to include the value of C<plugin_remover_attribute>
-(C<-remove> by default) if you want to retain this functionality.
-As always, patches and suggestions are welcome.
 
 This role adds a method modifier to C<bundle_config>,
 which is the method that the root C<PluginBundle> role requires,
@@ -158,51 +165,11 @@ in addition to those websites please use your favorite search engine to discover
 
 =item *
 
-Search CPAN
+MetaCPAN
 
-The default CPAN search engine, useful to view POD in HTML format.
+A modern, open-source CPAN search engine, useful to view POD in HTML format.
 
-L<http://search.cpan.org/dist/Dist-Zilla-Role-PluginBundle-PluginRemover>
-
-=item *
-
-RT: CPAN's Bug Tracker
-
-The RT ( Request Tracker ) website is the default bug/issue tracking system for CPAN.
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Dist-Zilla-Role-PluginBundle-PluginRemover>
-
-=item *
-
-CPAN Ratings
-
-The CPAN Ratings is a website that allows community ratings and reviews of Perl modules.
-
-L<http://cpanratings.perl.org/d/Dist-Zilla-Role-PluginBundle-PluginRemover>
-
-=item *
-
-CPAN Testers
-
-The CPAN Testers is a network of smokers who run automated tests on uploaded CPAN distributions.
-
-L<http://www.cpantesters.org/distro/D/Dist-Zilla-Role-PluginBundle-PluginRemover>
-
-=item *
-
-CPAN Testers Matrix
-
-The CPAN Testers Matrix is a website that provides a visual overview of the test results for a distribution on various Perls/platforms.
-
-L<http://matrix.cpantesters.org/?dist=Dist-Zilla-Role-PluginBundle-PluginRemover>
-
-=item *
-
-CPAN Testers Dependencies
-
-The CPAN Testers Dependencies is a website that shows a chart of the test results of all dependencies for a distribution.
-
-L<http://deps.cpantesters.org/?module=Dist::Zilla::Role::PluginBundle::PluginRemover>
+L<http://metacpan.org/release/Dist-Zilla-Role-PluginBundle-PluginRemover>
 
 =back
 
@@ -223,6 +190,10 @@ L<https://github.com/rwstauner/Dist-Zilla-Role-PluginBundle-PluginRemover>
 
 Randy Stauner <rwstauner@cpan.org>
 
+=head1 CONTRIBUTOR
+
+Karen Etheridge <ether@cpan.org>
+
 =head1 COPYRIGHT AND LICENSE
 
 This software is copyright (c) 2011 by Randy Stauner.
@@ -231,4 +202,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
