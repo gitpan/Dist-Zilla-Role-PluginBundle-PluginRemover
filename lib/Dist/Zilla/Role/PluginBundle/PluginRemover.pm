@@ -11,16 +11,11 @@ use strict;
 use warnings;
 
 package Dist::Zilla::Role::PluginBundle::PluginRemover;
-{
-  $Dist::Zilla::Role::PluginBundle::PluginRemover::VERSION = '0.102';
-}
-# git description: v0.101-7-g1c447fc
+# git description: v0.102-2-g1785339
 
-BEGIN {
-  $Dist::Zilla::Role::PluginBundle::PluginRemover::AUTHORITY = 'cpan:RWSTAUNER';
-}
+our $AUTHORITY = 'cpan:RWSTAUNER';
 # ABSTRACT: Add '-remove' functionality to a bundle
-
+$Dist::Zilla::Role::PluginBundle::PluginRemover::VERSION = '0.103';
 use Moose::Role;
 use Dist::Zilla::Util ();
 
@@ -44,10 +39,15 @@ around mvp_multivalue_args => sub {
 sub remove_plugins {
   my ($self, $remove, @plugins) = @_;
 
-  # stolen 100% from @Filter (thanks rjbs!)
+  # plugin specifications look like:
+  # [ plugin_name, plugin_class, arguments ]
+
+  # stolen 99% from @Filter (thanks rjbs!)
   require List::MoreUtils;
   for my $i (reverse 0 .. $#plugins) {
     splice @plugins, $i, 1 if List::MoreUtils::any(sub {
+      $plugins[$i][0] eq $_
+        or
       $plugins[$i][1] eq Dist::Zilla::Util->expand_config_package_name($_)
     }, @$remove);
   }
@@ -74,11 +74,11 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
-=for :stopwords Randy Stauner ACKNOWLEDGEMENTS Karen Etheridge <ether@cpan.org> cpan
-testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto
-metadata placeholders metacpan
+=for :stopwords Randy Stauner ACKNOWLEDGEMENTS Etheridge Karen cpan testmatrix url annocpan
+anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders
+metacpan
 
 =head1 NAME
 
@@ -86,7 +86,7 @@ Dist::Zilla::Role::PluginBundle::PluginRemover - Add '-remove' functionality to 
 
 =head1 VERSION
 
-version 0.102
+version 0.103
 
 =head1 SYNOPSIS
 
@@ -146,6 +146,18 @@ but is defined separately in case you would like
 to use the functionality without the voodoo that occurs
 when consuming this role.
 
+The plugin name to match against all plugins can be given as either the plugin
+moniker (like you might provide in your config file, expanded via
+L<Dist::Zilla::Util/expand_config>), or the unique plugin name used to
+differentiate multiple plugins of the same type. For example, in this
+configuration:
+
+    [Foo::Bar / plugin 1]
+    [Foo::Bar / plugin 2]
+
+passing C<'Foo::Bar'> to C<remove_plugins> will remove both these plugins from
+the configuration, but only the first is removed when passing C<'plugin 1'>.
+
 =for Pod::Coverage mvp_multivalue_args
 
 =head1 SUPPORT
@@ -176,7 +188,7 @@ L<http://metacpan.org/release/Dist-Zilla-Role-PluginBundle-PluginRemover>
 =head2 Bugs / Feature Requests
 
 Please report any bugs or feature requests by email to C<bug-dist-zilla-role-pluginbundle-pluginremover at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Dist-Zilla-Role-PluginBundle-PluginRemover>. You will be automatically notified of any
+the web interface at L<https://rt.cpan.org/Public/Bug/Report.html?Queue=Dist-Zilla-Role-PluginBundle-PluginRemover>. You will be automatically notified of any
 progress on the request by the system.
 
 =head2 Source Code
@@ -191,6 +203,8 @@ L<https://github.com/rwstauner/Dist-Zilla-Role-PluginBundle-PluginRemover>
 Randy Stauner <rwstauner@cpan.org>
 
 =head1 CONTRIBUTOR
+
+=for stopwords Karen Etheridge
 
 Karen Etheridge <ether@cpan.org>
 
